@@ -4,6 +4,7 @@
   <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
   <arg name="open_rviz" default="true"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="use_mecanum" default="false"/>
 
   <!-- Turtlebot3 -->
   <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
@@ -14,11 +15,17 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!-- AMCL -->
-  <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+  <group unless="$(arg use_mecanum)">
+    <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+  </group>
+  <group if="$(arg use_mecanum)">
+    <include file="$(find turtlebot3_navigation)/launch/amcl_mecanum.launch"/>
+  </group>
 
   <!-- move_base -->
   <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
     <arg name="model" value="$(arg model)" />
+    <arg name="use_mecanum" value="$(arg use_mecanum)" />
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
   </include>
 
